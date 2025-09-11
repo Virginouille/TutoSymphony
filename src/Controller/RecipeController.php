@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Recipe;
+use App\Form\RecipeType;
 use App\Repository\RecipeRepository;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\AST\Functions\CurrentDateFunction;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,5 +36,50 @@ final class RecipeController extends AbstractController
         return $this->render('recipe/show.html.twig', [
             'recipe' => $recipe
         ]);
+    }
+
+    #[Route('/recettes/{id}/edit', name: 'recipe.edit', methods: ['GET', 'POST'])]
+    public function edit(Recipe $recipe, Request $request, EntityManagerInterface $em)
+    {
+        $form = $this->createForm(RecipeType::class, $recipe);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $recipe->setUpdatedAt(new DateTimeImmutable());
+            $em->flush();
+            $this->addFlash('success', 'Votre recette a bien été modifiée');
+            return $this->redirectToRoute('recipe.index');
+        }
+        return $this->render('recipe/edit.html.twig', [
+            'recipe' => $recipe,
+            'form' => $form
+        ]);
+    }
+
+    #[Route('/recettes/create', name: 'recipe.create')]
+    public function create(Request $request, EntityManagerInterface $em)
+    {
+        $recipe = new Recipe();
+        $form = $this->createForm(RecipeType::class, $recipe);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $recipe->setCreatedAt(new DateTimeImmutable());
+            $recipe->setUpdatedAt(new DateTimeImmutable());
+            $em->persist($recipe);;
+            $em->flush();
+            $this->addFlash('success', 'Votre recette a bien été crée');
+            return $this->redirectToRoute('recipe.index');
+        }
+        return $this->render('recipe/create.html.twig', [
+            'form' => $form
+        ]);
+    }
+
+    #[Route('/recette/{id}', name: 'recipe.delete', methods: ['DELETE'])]
+    public function remove(Recipe $recipe, EntityManagerInterface $em)
+    {
+        $em->remove($recipe);
+        $em->flush();
+        $this->addFlash('success', 'La recette a été supprimée avec succès');
+        $this->redirectToRoute('recipe.index');
     }
 }
