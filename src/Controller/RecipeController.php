@@ -44,7 +44,6 @@ final class RecipeController extends AbstractController
         $form = $this->createForm(RecipeType::class, $recipe);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $recipe->setUpdatedAt(new DateTimeImmutable());
             $em->flush();
             $this->addFlash('success', 'Votre recette a bien été modifiée');
             return $this->redirectToRoute('recipe.index');
@@ -62,8 +61,6 @@ final class RecipeController extends AbstractController
         $form = $this->createForm(RecipeType::class, $recipe);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $recipe->setCreatedAt(new DateTimeImmutable());
-            $recipe->setUpdatedAt(new DateTimeImmutable());
             $em->persist($recipe);;
             $em->flush();
             $this->addFlash('success', 'Votre recette a bien été crée');
@@ -74,12 +71,12 @@ final class RecipeController extends AbstractController
         ]);
     }
 
-    #[Route('/recette/{id}', name: 'recipe.delete', methods: ['DELETE'])]
+    #[Route('/recettes/{id}/edit', name: 'recipe.delete', methods: ['DELETE'])]
     public function remove(Recipe $recipe, EntityManagerInterface $em)
     {
         $em->remove($recipe);
         $em->flush();
         $this->addFlash('success', 'La recette a été supprimée avec succès');
-        $this->redirectToRoute('recipe.index');
+        return $this->redirectToRoute('recipe.index');
     }
 }
