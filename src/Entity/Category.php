@@ -36,7 +36,7 @@ class Category
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     * @var Collection<int, Recipe>
+     * @var Collection<int, Recipe> 
      */
     #[ORM\OneToMany(targetEntity: Recipe::class, mappedBy: 'category')]
     private Collection $recipes;
