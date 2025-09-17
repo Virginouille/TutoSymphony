@@ -17,7 +17,7 @@ final class HomeController extends AbstractController
     #[Route("/", name: "home")]
     function index(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher, Security $security): Response
     {
-        dd($security->getUser());
+        $security->getUser();
         return $this->render('home/index.html.twig');
     }
 }
